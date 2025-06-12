@@ -6,7 +6,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     [type="radio"]:checked + span {
-      color: #ec4899; /* لون وردي عند التحديد */
+      color: #ec4899; 
     }
   </style>
 </head>
@@ -96,7 +96,7 @@
         body: JSON.stringify({ 
           name, 
           score: percent, 
-          testType: 'الرجولة',
+          testType: 'الأنوثة',
           answers: userAnswers 
         })
       }).catch(e => console.error('خطأ في إرسال النتيجة:', e));
