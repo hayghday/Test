@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>نتيجتك 👑</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-b from-pink-100 to-blue-200 min-h-screen flex items-center justify-center p-6">
+  <div class="bg-white shadow-2xl rounded-3xl p-8 max-w-lg w-full text-center">
+    <h1 class="text-3xl font-bold text-pink-600 mb-4">🎉 تهانينا!</h1>
+    <p class="text-gray-700 text-lg mb-6">انتهيت من الاختبار! والآن حان وقت النتيجة 👀</p>
+
+    <div class="bg-pink-50 border border-pink-300 rounded-xl p-6 mb-6">
+      <h2 class="text-xl font-semibold text-pink-700 mb-2">نتيجتك:</h2>
+      <p class="text-gray-800 text-base">جاري تحميل النتيجة...</p>
+      <p class="text-sm text-gray-500 mt-2">* هذه النتيجة للمرح فقط، لا تأخذ الأمور بجدية 😉</p>
+    </div>
+
+    <a href="index.html" class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-full shadow-md transition">🔁 أعد الاختبار</a>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const score = parseInt(params.get('score')) || 0;
+    const name = params.get('name') || 'صديقنا';
+
+    let resultText = '';
+    if (score === 117 && name === 'لـولـو') {
+      resultText = `👑 ${name}، أنوثتك 117%! مستحيل! إنتِ أيقونة الأنوثة بلا منازع!`;
+    } else if (score >= 80) {
+      resultText = `💖 ${name}، عندك نسبة ${score}%! مستوى عالي مرة!`;
+    } else if (score >= 50) {
+      resultText = `✨ ${name}، النسبة ${score}%... فيها لمعة، بس نقدر نزيد!`;
+    } else {
+      resultText = `😅 ${name}، نسبتك ${score}%... بسيطة جدًا، نعيد المحاولة؟`;
+    }
+    document.querySelector('p.text-gray-800').textContent = resultText;
+  </script>
+</body>
+</html>
