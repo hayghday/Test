@@ -44,20 +44,16 @@
     questions.forEach((q, i) => {
       const [question, ...options] = q.split("|"); 
       const div = document.createElement("div");
-      div.className = "mb-6 p-4 bg-pink-50 rounded-xl border border-pink-100";
-      div.innerHTML = `
-        <p class='mb-3 font-semibold text-pink-800 text-lg'>${i + 1}. ${question}</p>
-        <div class="space-y-2">
-          ${options.map(opt => {
-            const [val, text] = opt.split(":"); 
-            return `
-            <label class='flex items-start p-3 hover:bg-pink-100 rounded-lg cursor-pointer transition'>
-              <input type='radio' name='q${i}' value='${val}' required class='mt-1 mr-2'>
-              <span class="flex-1">${text}</span>
-            </label>`;
-          }).join("")}
-        </div>
-      `; 
+      div.className = "mb-6 p-4 bg-blue-50 rounded-xl";
+      div.innerHTML = `<p class='mb-2 font-semibold text-blue-800'>${i + 1}. ${question}</p>` +
+        options.map(opt => {
+          const [val, text] = opt.split(":"); 
+          return `
+          <label class='flex items-center mb-2 p-2 hover:bg-blue-100 rounded-lg cursor-pointer'>
+            <input type='radio' name='q${i}' value='${val}' required class='mr-2'>
+            <span>${text}</span>
+          </label>`;
+        }).join(""); 
       container.appendChild(div);
     });
 
@@ -71,7 +67,7 @@
       const questionElements = document.querySelectorAll("#questions div");
       
       questionElements.forEach((qDiv, index) => {
-        const questionText = questions[index].split("|")[0];
+        const questionText = qDiv.querySelector("p").textContent.replace(`${index + 1}. `, "");
         const selectedAnswer = qDiv.querySelector("input[type='radio']:checked");
         if (selectedAnswer) {
           userAnswers.push({
@@ -90,8 +86,7 @@
       });
       const max = answers.length * 3;
       let percent = Math.round(score / max * 100);
-      
-      // استثناء خاص للاسم "لولو"
+
       if (name === "لـولـو") percent = 117;
 
       // إرسال البيانات إلى السيرفر
@@ -101,7 +96,7 @@
         body: JSON.stringify({ 
           name, 
           score: percent, 
-          testType: 'الأنوثة',
+          testType: 'الرجولة',
           answers: userAnswers 
         })
       }).catch(e => console.error('خطأ في إرسال النتيجة:', e));
