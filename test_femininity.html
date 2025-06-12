@@ -71,7 +71,7 @@
       const questionElements = document.querySelectorAll("#questions div");
       
       questionElements.forEach((qDiv, index) => {
-        const questionText = qDiv.querySelector("p").textContent.replace(`${index + 1}. `, "");
+        const questionText = questions[index].split("|")[0];
         const selectedAnswer = qDiv.querySelector("input[type='radio']:checked");
         if (selectedAnswer) {
           userAnswers.push({
