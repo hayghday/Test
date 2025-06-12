@@ -5,28 +5,33 @@ const axios = require('axios');
 const bodyParser = require('body-parser');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 const TELEGRAM_BOT_TOKEN = '5453032879:AAFQwFPext99JtaBElWGUl35r9w_EzK2t8s';
 const TELEGRAM_CHAT_IDS = ['1008961594', '5915747903'];
 
+// Middleware
 app.use(bodyParser.json());
-app.use(express.static('public'));
+app.use(express.static(__dirname)); // تقديم الملفات من المجلد الجذري
 
 const RESULTS_FILE = path.join(__dirname, 'results.json');
 
-let results = [];
-if (fs.existsSync(RESULTS_FILE)) {
-  try {
-    results = JSON.parse(fs.readFileSync(RESULTS_FILE, 'utf-8'));
-  } catch (e) {
-    console.error('Failed to read results file:', e);
-  }
+// إنشاء ملف النتائج إذا لم يكن موجوداً
+if (!fs.existsSync(RESULTS_FILE)) {
+  fs.writeFileSync(RESULTS_FILE, '[]', 'utf8');
 }
 
+let results = [];
+try {
+  results = JSON.parse(fs.readFileSync(RESULTS_FILE, 'utf-8'));
+} catch (e) {
+  console.error('Failed to read results file:', e);
+}
+
+// Route لمعالجة النتائج
 app.post('/submit-result', (req, res) => {
   const { name, score, testType } = req.body;
-  if (!name || !score || !testType) {
+  if (!name || score === undefined || !testType) {
     return res.status(400).json({ error: 'Missing data' });
   }
 
@@ -51,6 +56,28 @@ app.post('/submit-result', (req, res) => {
   });
 });
 
+// Routes لكل صفحة HTML
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/test_femininity.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'test_femininity.html'));
+});
+
+app.get('/test_masculinity.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'test_masculinity.html'));
+});
+
+app.get('/result.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'result.html'));
+});
+
+// أي route آخر يتم توجيهه إلى index.html
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
 app.listen(PORT, () => {
-  console.log(`Server listening at http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
