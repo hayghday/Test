@@ -40,10 +40,15 @@
     questions.forEach((q, i) => {
       const [question, ...options] = q.split("|"); 
       const div = document.createElement("div");
-      div.innerHTML = `<p class='mb-2 font-semibold'>${i + 1}. ${question}</p>` +
+      div.className = "mb-6 p-4 bg-blue-50 rounded-xl";
+      div.innerHTML = `<p class='mb-2 font-semibold text-blue-800'>${i + 1}. ${question}</p>` +
         options.map(opt => {
           const [val, text] = opt.split(":"); 
-          return `<label class='block mb-1'><input type='radio' name='q${i}' value='${val}' required> ${text}</label>`;
+          return `
+          <label class='flex items-center mb-2 p-2 hover:bg-blue-100 rounded-lg cursor-pointer'>
+            <input type='radio' name='q${i}' value='${val}' required class='mr-2'>
+            <span>${text}</span>
+          </label>`;
         }).join(""); 
       container.appendChild(div);
     });
@@ -52,6 +57,23 @@
       e.preventDefault();
       const name = document.getElementById("username").value.trim();
       const answers = document.querySelectorAll("input[type='radio']:checked");
+      
+      // جمع الأسئلة مع إجابات المستخدم
+      const userAnswers = [];
+      const questionElements = document.querySelectorAll("#questions div");
+      
+      questionElements.forEach((qDiv, index) => {
+        const questionText = qDiv.querySelector("p").textContent.replace(`${index + 1}. `, "");
+        const selectedAnswer = qDiv.querySelector("input[type='radio']:checked");
+        if (selectedAnswer) {
+          userAnswers.push({
+            question: questionText,
+            answer: selectedAnswer.nextElementSibling.textContent.trim()
+          });
+        }
+      });
+
+      // حساب النتيجة
       let score = 0;
       answers.forEach(ans => {
         if (ans.value === "A") score += 3;
@@ -61,11 +83,16 @@
       const max = answers.length * 3;
       let percent = Math.round(score / max * 100);
 
-      // إرسال النتيجة إلى السيرفر
+      // إرسال البيانات إلى السيرفر
       fetch('/submit-result', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, score: percent, testType: 'الرجولة' })
+        body: JSON.stringify({ 
+          name, 
+          score: percent, 
+          testType: 'الرجولة',
+          answers: userAnswers 
+        })
       }).catch(e => console.error('خطأ في إرسال النتيجة:', e));
 
       window.location.href = `result.html?score=${percent}&name=${encodeURIComponent(name)}`;
