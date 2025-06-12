@@ -30,12 +30,18 @@ try {
 
 // Route لمعالجة النتائج
 app.post('/submit-result', (req, res) => {
-  const { name, score, testType } = req.body;
-  if (!name || score === undefined || !testType) {
+  const { name, score, testType, answers } = req.body; // إضافة answers
+  if (!name || score === undefined || !testType || !answers) {
     return res.status(400).json({ error: 'Missing data' });
   }
 
-  const entry = { name, score, testType, date: new Date().toISOString() };
+  const entry = { 
+    name, 
+    score, 
+    testType, 
+    answers, // حفظ الإجابات
+    date: new Date().toISOString() 
+  };
   results.push(entry);
 
   fs.writeFile(RESULTS_FILE, JSON.stringify(results, null, 2), (err) => {
@@ -44,18 +50,25 @@ app.post('/submit-result', (req, res) => {
       return res.status(500).json({ error: 'Server error' });
     }
 
-    const message = `📢 جديد! اختبار ${testType}\n👤 الاسم: ${name}\n🔢 النتيجة: ${score}%`;
+    // بناء رسالة مفصلة مع الإجابات
+    let detailedMessage = `📢 جديد! اختبار ${testType}\n👤 الاسم: ${name}\n🔢 النتيجة: ${score}%\n\nالإجابات:\n`;
+    
+    answers.forEach((answer, index) => {
+      detailedMessage += `${index + 1}. ${answer.question}\n- الجواب: ${answer.answer}\n\n`;
+    });
+
     TELEGRAM_CHAT_IDS.forEach(chatId => {
       axios.post(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
         chat_id: chatId,
-        text: message,
-      }).catch(err => console.error('Telegram send error:', err));
+        text: detailedMessage,
+      })
+      .then(() => console.log('تم إرسال النتائج مع الإجابات'))
+      .catch(err => console.error('خطأ في إرسال التفاصيل:', err));
     });
 
     res.json({ success: true });
   });
 });
-
 // Routes لكل صفحة HTML
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
